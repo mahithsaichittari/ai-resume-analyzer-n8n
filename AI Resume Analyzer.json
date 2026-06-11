@@ -1,0 +1,151 @@
+{
+  "name": "AI Resume Analyzer",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1-SXWsvN6wRUOWa8UZWd6Op5vhcKI5Cmnp_PHq5bMZ14",
+          "mode": "list",
+          "cachedResultName": "  AI Resume Analyzer   (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-SXWsvN6wRUOWa8UZWd6Op5vhcKI5Cmnp_PHq5bMZ14/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 193135635,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-SXWsvN6wRUOWa8UZWd6Op5vhcKI5Cmnp_PHq5bMZ14/edit#gid=193135635"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "27d3a5cb-6aae-46a9-ada8-ed6a9a975a8b",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "rqaFIV8jSZnPpSsv",
+          "name": "Google Sheets Trigger account 3008"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert HR recruiter.\n\nAnalyze this candidate:\n\nName: {{$json[\"Full Name\"]}}\nEmail: {{$json[\"Email\"]}}\nResume Link: {{$json[\"Resume Link (Google Drive PDF).\"]}}\n\nProvide:\n\n1. Top Skills\n2. Education Summary\n3. Strengths\n4. Suggested Roles\n5. Job Match Score (0-100)\n\nKeep the response professional and under 150 words.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "cfc27a58-4b02-46a6-9f7a-b510195cd2dd",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        224
+      ],
+      "id": "00f4bc7d-89f8-496f-bd36-a6eac1efc4cd",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "0DuiCQCYCSB0gJff",
+          "name": "Google Gemini(PaLM) Api account 7804"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$node[\"Google Sheets Trigger\"].json[\"Email\"]}}",
+        "subject": "Your AI Resume Analysis Report",
+        "message": "=Hello {{$node[\"Google Sheets Trigger\"].json[\"Full Name\"]}},\n\nThank you for submitting your resume.\n\nHere is your AI Resume Analysis:\n\n{{$node[\"AI Agent\"].json[\"output\"]}}\n\nBest Regards,\nAI Resume Analyzer Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "731d68e7-dddf-4787-9baf-662e3610822b",
+      "name": "Send a message",
+      "webhookId": "62b31a34-19f7-432b-afb8-7857d3b94e67",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LVaM5o9KevrgtmZq",
+          "name": "Gmail account 2157"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "876eb373-195c-4a64-8d1e-f28dd3f16643",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "969257b09ad2942bbaff2e2288304f4969030574d109cdeca05bf11f630884df"
+  },
+  "id": "VhOrCnv0ktXX1y0D",
+  "tags": []
+}
